@@ -25,9 +25,19 @@ public class ParalympicCyclingRelay {
         System.out.println("What is the point limit for the relay? ");
         int givenPointLimit = scanner.nextInt(); // Stores the user's input of the next integer
         scanner.nextLine(); // Prevents the next input from being a string input and not an integer input by consuming the \n
+        while (givenPointLimit < 3) { // Keep re-entering the point limit if it is below 3, otherwise exit the loop
+            System.out.println("That is not a valid input. Enter a value >=3");
+            System.out.println("What is the point limit for the relay? ");
+            givenPointLimit = scanner.nextInt(); // Stores the user's input of the next integer
+            scanner.nextLine(); // Prevents the next input from being a string input and not an integer input by consuming the \n
+        }
 
         System.out.println("What is the name of the country? ");
         String givenCountryName = scanner.nextLine(); // Stores the user's input of the country name 
+        while (!givenCountryName.matches("[A-Za-z]+")){ // Use the regular expresison of any alphabetical character one or more times for the user input of a country
+            System.out.println("That is not a valid input. Enter a name.");
+            givenCountryName = scanner.nextLine(); // Stores the user's input of the country name 
+        }
 
         ParalympicRelayTeam team = createTeam(givenCountryName, givenPointLimit);
 
@@ -35,7 +45,14 @@ public class ParalympicCyclingRelay {
 
         for (int i = 0; i < 3; i++) { // Use a for loop to actually set the rating for each cyclist in the team
             System.out.println(String.format("What is the disability rating of cyclyst %d? D ", i+1)); // Use i+1 because i is intialised at 0
-            givenRatings[i] = scanner.nextInt(); // Takes the next user input of an integer
+            int currRating = scanner.nextInt();
+
+            while (currRating < 1 || currRating > 5) { 
+                System.out.println("That is not a valid input. Enter a value >=1 & <=5");
+                System.out.println(String.format("What is the disability rating of cyclyst %d? D ", i+1)); // Use i+1 because i is intialised at 0
+                currRating = scanner.nextInt();
+            }
+            givenRatings[i] = currRating; // Takes the next user input of an integer
         }
 
         scanner.close(); // Prevent resource leaks
@@ -45,7 +62,6 @@ public class ParalympicCyclingRelay {
         final String finalRating = printTeamRatings(team); // Keep the final rating given in a final string variable so it cannot be modified
 
         System.out.println(finalRating); // Ultimately, print the final rating
-
     }    
 
     public static ParalympicRelayTeam createTeam(String country, int maxPoints) { // Create a new method that accesses the ParalympicRelayTeam method
@@ -61,7 +77,6 @@ public class ParalympicCyclingRelay {
 
     public static void setTeamRatings(ParalympicRelayTeam team, int rating1, int rating2, int rating3) { // Set the team's ratings via an accessor method
         if (rating1 < 1 || rating1 > 5 || rating2 < 1 || rating2 > 5 || rating3 < 1 || rating3 > 5) {
-            System.out.println("Invalid ratings were entered!");
         }
         else { 
             team.disabilityRatings[0] = rating1;
