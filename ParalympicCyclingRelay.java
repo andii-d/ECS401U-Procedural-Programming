@@ -86,13 +86,13 @@ public class ParalympicCyclingRelay {
     }
 
     public static String printTeamRatings(ParalympicRelayTeam team) { // Final accessor method that just collates the disability ratings and the legality of the team (depending on their max points and ratings)
-        int disabilityRatingsTotal =  team.disabilityRatings[0] +  team.disabilityRatings[1] +  team.disabilityRatings[2];
-        boolean legalRating = disabilityRatingsTotal <= team.maxPointsPerRace; // The rating of the race is legal is the total of the disability ratings is less than the max points of the race
+        final int DISABILITY_RATINGS_TOTAL =  team.disabilityRatings[0] +  team.disabilityRatings[1] +  team.disabilityRatings[2];
+        final boolean LEGAL_RATING = DISABILITY_RATINGS_TOTAL <= team.maxPointsPerRace; // The rating of the race is legal is the total of the disability ratings is less than the max points of the race
         
-        String isLegal = legalRating ? "legal" : "NOT legal"; // Ternary operator in order to decide whether the rating for the team inputted is legal
+        final String IS_LEGAL = LEGAL_RATING ? "legal" : "NOT legal"; // Ternary operator in order to decide whether the rating for the team inputted is legal
         // ? comes after true, : comes after false
 
-        return (String.format("%s has D%d, D%d and D%d cyclists. That is %s for a %d point race.", team.countryName, team.disabilityRatings[0], team.disabilityRatings[1], team.disabilityRatings[2], isLegal, team.maxPointsPerRace));
+        return (String.format("%s has D%d, D%d and D%d cyclists. That is %s for a %d point race.", team.countryName, team.disabilityRatings[0], team.disabilityRatings[1], team.disabilityRatings[2], IS_LEGAL, team.maxPointsPerRace));
     }
 }
 
