@@ -95,4 +95,3 @@ public class ParalympicCyclingRelay {
         return (String.format("%s has D%d, D%d and D%d cyclists. That is %s for a %d point race.", team.countryName, team.disabilityRatings[0], team.disabilityRatings[1], team.disabilityRatings[2], IS_LEGAL, team.maxPointsPerRace));
     }
 }
-
