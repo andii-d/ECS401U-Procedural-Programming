@@ -46,7 +46,7 @@ class Question {
 }
 
 // Initialise ADT for players
-class Player{
+class Player {
     private int number;
     private int money;
 
@@ -69,78 +69,99 @@ class Player{
 }
 
 public class DoubleOrNothing_MiniProject {
-    static void main(String[] args) { // Where all the main logic of the quiz resides
+    public static void main(String[] args) { // START main
         // Initialise program constants
         Scanner scanner = new Scanner(System.in);
         final int MAX_NUMBER_OF_PLAYERS = 4;
         final int MAX_NUMBER_OF_QUESTIONS = 5;
         final int STARTING_WINNINGS = 500;
+        final String FILE_PATH = "/Users/andy/Desktop/Coding/Java files/MINI PROJECT/Categories/";
 
-        // Create variables before all logic to be visible by scope
+        // Create variables beforehand, to be visible by scope
         String category_menu;
         Question[] quiz_game_questions = null;
 
         // Call the method which prints the rules of the game
         gameRules();
 
-        //
+        // START
         // Picking the category of the quiz
         //
         System.out.println("To pick a category or make a new one:\n1) Choose categories \n2) New \nEnter: ");
 
+
         do { // Whilst the options do not align with 1 or 2 entered, keep asking the user to enter either option correctly
             category_menu = scanner.nextLine();
             if (category_menu.equals("1")) {
-                quiz_game_questions = gatherQuestions(showCategories(), MAX_NUMBER_OF_QUESTIONS);
+                quiz_game_questions = gatherQuestions(showCategories(FILE_PATH, scanner), MAX_NUMBER_OF_QUESTIONS);
             }
             else if (category_menu.equals("2")){
-                createQuestions(MAX_NUMBER_OF_QUESTIONS);
+                createQuestions(MAX_NUMBER_OF_QUESTIONS, scanner);
             }
             else {
                 System.out.println("Enter a valid option 1 or 2.");
             }
         } while (!category_menu.equals("1") && !category_menu.equals("2")); // Condition keeps performing above code until 1 or 2 is entered
+        // END
 
 
         // Create the players for the game
-        Player[] players = new Player[MAX_NUMBER_OF_PLAYERS];
+        Player[] quiz_game_players = new Player[MAX_NUMBER_OF_PLAYERS];
         for (int i = 0; i < MAX_NUMBER_OF_PLAYERS; i++) {
-            players[i] = Player.createPlayers(i + 1, STARTING_WINNINGS);
+            quiz_game_players[i] = Player.createPlayers(i + 1, STARTING_WINNINGS);
         }
-    }
+
+        quizGame(quiz_game_players, quiz_game_questions);
+    } // END main
 
     public static void gameRules() {
         final String RULES =
-                "Welcome to the Double or Nothing Quiz Game!\n\n" +
-                        "The rules of this quiz state that you start off with £500.\n" +
-                        "With each correct answer you input, you double the pot of money.\n" +
-                        "With each incorrect answer, you halve the pot of money.\n";
+                """
+                        Welcome to the Double or Nothing Quiz Game!
+                        
+                        The rules of this quiz state that you start off with £500.
+                        With each correct answer you input, you double the pot of money.
+                        With each incorrect answer, you halve the pot of money.
+                        """;
         System.out.println(RULES); // Print out the rules of the game
     }
 
-    public static String showCategories() {
-        String categoriesPath = "/Users/andy/Desktop/Coding/Java files/MINI PROJECT/Categories/";
-        File categoriesFolder = new File(categoriesPath);
-        String tempVar = null; // Initialise the variable as null to be seen in scope
+    // START
+    // Implement the questions - showing categories, retrieving them from the text files and creating them as instances to be used in game
+    //
+    public static String showCategories(String FILE_PATH, Scanner scanner) { // Show all the categories in the 'Categories' folder, where all the categories of questions are
+        File categoriesFolder = new File(FILE_PATH);
+        String[] categoriesList = categoriesFolder.list();
         if (categoriesFolder.exists() && categoriesFolder.isDirectory()) {
-            File[] categories = categoriesFolder.listFiles();
-            for (File category : categories) { // For each loop of each category in file list of categories
-                String categoryName = category.getName();
-                tempVar = categoryName;
+            for (String category : categoriesList) { // For each loop of each category in file list of categories
+                System.out.println(category);
             }
         }
-        System.out.println(tempVar);
-        return tempVar.replaceFirst("[.][^.]+$", "");
-    }
+        String categoryInputted =  scanner.nextLine();
+        return categoryInputted;
+    } // END showCategories
 
-    public static void createQuestions(int MAX_NUMBER_OF_QUESTIONS) {
-        System.out.println("Do nothing");
-    }
+    public static void createQuestions(int MAX_NUMBER_OF_QUESTIONS, Scanner scanner) {
+        String[] new_category_questions = new String[MAX_NUMBER_OF_QUESTIONS];
+        String[] new_category_answers = new String[MAX_NUMBER_OF_QUESTIONS];
+
+        System.out.println("Please enter the name of the category you would like to enter: ");
+        String new_category = scanner.nextLine();
+
+        for (int i = 0; i < MAX_NUMBER_OF_QUESTIONS; i++) {
+            System.out.format("Enter question %d: ", i);
+            new_category_questions[i] = scanner.nextLine();
+            System.out.format("Please enter the answer of question %d: ", i);
+            new_category_answers[i] = scanner.nextLine();
+        }
+
+
+    } // END createCategories
 
     public static Question[] gatherQuestions(String categoryInputted, int MAX_NUMBER_OF_QUESTIONS) {
         final File QUESTIONS_FILE = new File(String.format("/Users/andy/Desktop/Coding/Java files/MINI PROJECT/Categories/%s.txt", categoryInputted));
-        String[] texts = new String[5]; // Create a list of question texts
-        String[] answers = new String[5]; // Create a list of answers per question
+        String[] texts = new String[5];
+        String[] answers = new String[5];
         Question[] questionsArray = new Question[5]; // Create a list of question records
 
         try (BufferedReader reader = new BufferedReader(new FileReader(QUESTIONS_FILE))) {
@@ -158,15 +179,8 @@ public class DoubleOrNothing_MiniProject {
         return questionsArray;
     }
 
-    public static void quizGame() {
-        Scanner scanner = new Scanner(System.in);
-
-        if (isQuestionCorrect(answerQ1, userInputQ1)) { // If it is TRUE that the player got the question correct:
-            playerWinnings *= 2; // Double the pot of money if the player got the answer right
-        } else {
-            playerWinnings /= 2; // Else, halve the pot of money if the player got the answer wrong
-        }
-        return playerWinnings;
+    public static void quizGame(Player[] players, Question[] quiz_questions) {
+        System.out.println("Do nothing");
     }
 
     public static boolean isQuestionCorrect(String question, String answer) {
