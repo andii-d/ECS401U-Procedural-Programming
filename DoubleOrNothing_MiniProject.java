@@ -1,28 +1,23 @@
 /* ***************************************
-
--> personal details removed for privacy <-
-
-  @author    
-  @SID       
+  @author    Andy Dishnica
+  @SID       250334126
   @date      20 October 2025
-  @version   4
+  @version   3
 
     Double or Nothing Quiz Mini Project
 
     The rules of this quiz state that you start off with £500.
     With each correct answer you input, you double the pot of money.
     With each incorrect answer, you halve the pot of money.
-   ****************************************/
 
-// Level 4 and 5:
-//      Let 4 people to answer the question in turn.
-//      Let each person get the question right, or choose to skip - controlled by an inner loop
-//      Each question and their correct answer
+Each previous version has been level 1 and 2.
+
+Current version is the final program.
+   ****************************************/
 
 // Import all packages
 import java.util.*;
 import java.io.*;
-
 
 // Initialise ADT for quiz questions
 class Question {
@@ -43,13 +38,11 @@ class Question {
     }
 
     // Modifier and accessor methods for the attributes of each question
-    public String getAnswer() {return answers;}
-    public String getCategory() {return category;}
     public boolean isUsed() {return used;}
-    public void setUsed (boolean used) {this.used = true;}
+    public String getCategory() {return category;}
+    public String getAnswer() {return answers.toLowerCase();}
     public String getQuestionText() {return questionText;}
-    public void resetQuestions(Question question) {question.setUsed(false);}
-
+    public void setUsed (boolean used) {this.used = used;}
 }
 
 // Initialise ADT for players
@@ -57,9 +50,7 @@ class Player {
     private int number;
     private int money;
 
-    //
     // Create a static method that creates each player
-    //
     public static Player createPlayers(int playerNum, int maxMoney) {
         Player player = new Player();
         player.number = playerNum; // Set the number of the player to allocate each one their own money
@@ -84,41 +75,37 @@ public class DoubleOrNothing_MiniProject {
         final int MAX_NUMBER_OF_PLAYERS = 4;
         final int MAX_NUMBER_OF_QUESTIONS = 5;
         final int STARTING_WINNINGS = 500;
-        final String FILE_PATH = "/Users/andy/Desktop/Coding/Java files/MINI PROJECT/Categories/";
+        final String FILE_PATH = "/Users/andy/Desktop/Coding/Java files/MINI PROJECT/Categories/"; // Change for local dependency
 
-        // Create variables beforehand, to be visible by scope
-        int category_menu;
+        // Initialise variables beforehand, to be visible by scope
+        int category_menu = 0;
         Question[] quiz_game_questions = null;
+        Player[] quiz_game_players = createPlayers(MAX_NUMBER_OF_PLAYERS, STARTING_WINNINGS);
 
         // Call the method which prints the rules of the game
         gameRules();
 
         // START
-        // Picking the category of the quiz`
+        // Picking the category of the quiz or making questions
         //
-        System.out.println("To pick a category or make a new one:\n1) Choose categories \n2) New \nEnter: ");
-
-
-        do { // Whilst the options do not align with 1 or 2 entered, keep asking the user to enter either option correctly
+        while (category_menu != 1) {
+            System.out.println("To pick a category or make a new one:\n1) Choose categories \n2) New \nEnter: ");
             category_menu = Integer.parseInt(scanner.nextLine());
             if (category_menu == 1) {
-                quiz_game_questions = gatherQuestions(showCategories(FILE_PATH, scanner), MAX_NUMBER_OF_QUESTIONS);
-            }
-            else if (category_menu == 2){
+                quiz_game_questions = gatherQuestions(showCategories(FILE_PATH, scanner), MAX_NUMBER_OF_QUESTIONS, FILE_PATH);
+            } else if (category_menu == 2) {
                 createQuestions(MAX_NUMBER_OF_QUESTIONS, scanner, FILE_PATH);
+                System.out.println("Your category will now be shown in game!");
+            } else {
+                System.out.println("\nEnter a valid option 1 or 2.\n");
             }
-            else {
-                System.out.println("Enter a valid option 1 or 2.");
-            }
-        } while (category_menu != 1 && category_menu != 2); // Condition keeps performing above code until 1 or 2 is entered
+        }
         // END
-
-        Player[] quiz_game_players = createPlayers(MAX_NUMBER_OF_PLAYERS, STARTING_WINNINGS);
 
         quizGame(quiz_game_players, quiz_game_questions, scanner, MAX_NUMBER_OF_QUESTIONS); // Start the game
     } // END main
 
-    public static void gameRules() {
+    public static void gameRules() { // Print out the rules of the game
         final String RULES =
                 """
                         Welcome to the Double or Nothing Quiz Game!
@@ -127,39 +114,36 @@ public class DoubleOrNothing_MiniProject {
                         With each correct answer you input, you double the pot of money.
                         With each incorrect answer, you halve the pot of money.
                         """;
-        System.out.println(RULES); // Print out the rules of the game
+        System.out.println(RULES);
     }
 
-    // START
+    // START showCategories
     // Implement the questions - showing categories, retrieving them from the text files and creating them as instances to be used in game
-    //
     public static String showCategories(String FILE_PATH, Scanner scanner) { // Show all the categories in the 'Categories' folder, where all the categories of questions are
         File categories_folder = new File(FILE_PATH);
         String[] categories_list = categories_folder.list();
         String category_inputted;
+        int display_number = 0; // To display the correct category number, in order to avoid ghost files in the below for loop
 
         if (categories_folder.exists() && categories_folder.isDirectory()) {
             for (int i = 0; i < categories_list.length; i++) {
                 if (!categories_list[i].startsWith(".") && categories_list[i].endsWith(".txt")) { // Ignore ghost files and/or non .txt files
+                    display_number++;
                     categories_list[i] = categories_list[i].replaceFirst("[.][^.]+$", "");
-                    System.out.println(categories_list[i]);
+                    System.out.printf("%d) %s\n", display_number,  categories_list[i]);
                 }
             }
         }
         System.out.println("Pick a category: ");
         category_inputted = scanner.nextLine();
-        for (String category : categories_list) {
-            System.out.println(category.equals(category_inputted));
-        }
         while (!categoryIsInArray(category_inputted, categories_list)) {
             System.out.println("Enter an existing category please.");
             category_inputted = scanner.nextLine();
-            System.out.println("Debugging 1");
         }
-        System.out.println("Debugging 2");
         return category_inputted;
     } // END showCategories
 
+    // START categoryIsInArray
     public static boolean categoryIsInArray(String category_inputted, String[] list_of_categories) {
         // Linearly search the entire list of categories given, and return whether the category inputted exists or not
         for (String category : list_of_categories) {
@@ -168,17 +152,19 @@ public class DoubleOrNothing_MiniProject {
             }
         }
         return false;
-    }
+    } // END categoryIsInArray
 
+    // START createPlayers
     public static Player[] createPlayers(int MAX_NUMBER_OF_PLAYERS, int STARTING_WINNINGS) {
-        // Create the players for the game
+        // Create the player instances
         Player[] quiz_game_players = new Player[MAX_NUMBER_OF_PLAYERS];
         for (int i = 0; i < MAX_NUMBER_OF_PLAYERS; i++) {
             quiz_game_players[i] = Player.createPlayers(i + 1, STARTING_WINNINGS);
         }
         return quiz_game_players;
-    }
+    } // END createPlayers
 
+    // START createQuestions
     public static void createQuestions(int MAX_NUMBER_OF_QUESTIONS, Scanner scanner, String FILE_PATH) {
         String[] new_category_questions = new String[MAX_NUMBER_OF_QUESTIONS];
         String[] new_category_answers = new String[MAX_NUMBER_OF_QUESTIONS];
@@ -199,14 +185,15 @@ public class DoubleOrNothing_MiniProject {
 
         final File NEW_CATEGORY_TEXT_FILE = new File(String.format("%s/%s.txt", FILE_PATH, new_category));
 
-        for (int i = 0; i < MAX_NUMBER_OF_QUESTIONS; i++) { // Enter the list of questions and their respective answers
+        // Enter the list of questions and their respective answers
+        for (int i = 0; i < MAX_NUMBER_OF_QUESTIONS; i++) {
             System.out.format("Enter question %d: ", i+1);
             new_category_questions[i] = scanner.nextLine();
             System.out.format("Please enter the answer of question %d: ", i+1);
             new_category_answers[i] = scanner.nextLine();
         }
 
-        try {
+        try { // Attempt to write to the given file path of the new categorised quiz questions, catching and printing any errors
             BufferedWriter writer = new BufferedWriter(new FileWriter(NEW_CATEGORY_TEXT_FILE));
             for (int i = 0; i < MAX_NUMBER_OF_QUESTIONS; i++) {
                 System.out.println(new_category_questions[i] + ":" + new_category_answers[i]);
@@ -219,10 +206,12 @@ public class DoubleOrNothing_MiniProject {
             e.printStackTrace();
         }
 
-    } // END createCategories
+    } // END createQuestions
 
-    public static Question[] gatherQuestions(String categoryInputted, int MAX_NUMBER_OF_QUESTIONS) {
-        final File QUESTIONS_FILE = new File(String.format("/Users/andy/Desktop/Coding/Java files/MINI PROJECT/Categories/%s.txt", categoryInputted));
+
+    // START gatherQuestions
+    public static Question[] gatherQuestions(String categoryInputted, int MAX_NUMBER_OF_QUESTIONS, String FILE_PATH) {
+        final File QUESTIONS_FILE = new File(String.format("%s%s.txt", FILE_PATH, categoryInputted));
         String[] texts = new String[MAX_NUMBER_OF_QUESTIONS];
         String[] answers = new String[MAX_NUMBER_OF_QUESTIONS];
         Question[] questionsArray = new Question[MAX_NUMBER_OF_QUESTIONS];
@@ -231,72 +220,85 @@ public class DoubleOrNothing_MiniProject {
             for (int i = 0; i < MAX_NUMBER_OF_QUESTIONS; i++) {
                 String temp = reader.readLine(); // Create a temporary placeholder to read each line of the categorised questions
                 texts[i] = temp.split(":")[0]; // In the files, question texts are to the left of the colon
-                answers[i] = temp.split(":")[1]; // Whereas answers are to the right of it
-                questionsArray[i] = Question.createQuestions(answers[i], categoryInputted, texts[i]); // Add the text, its answer and the category to the current question record
+                answers[i] = temp.split(":")[1]; // Whereas the answers are to the right of it
+                questionsArray[i] = Question.createQuestions(answers[i], categoryInputted, texts[i]); // Add the text, its answer and the category to the current question instance
             }
-            // Remove the file extension of the file to retrieve the category
-            System.out.println(categoryInputted.replaceFirst("[.][^.]+$", ""));
         } catch (IOException e) {
             e.printStackTrace();
         }
         return questionsArray;
-    }
+    } // END gatherQuestions
 
+    // START isQuestionCorrect
     public static boolean isQuestionCorrect(String question, String answer) {
         return (question.equals(answer)); // Return true if the question's answer and the user's answer match
-    }
+    } // END isQuestionCorrect
 
+    // START randomiseNumber
     public static int randomiseNumber(int max, Question[] questions) {
         Random random = new Random();
         int random_q_num = random.nextInt(max);
 
-        while (questions[random_q_num].isUsed()) {
-            random_q_num =  random.nextInt(max);
+        for (Question question : questions) { // This prevents infinite looping by linearly searching the entire list of questions
+            if (!question.isUsed()) { // If there is still a question that's unused, generate a random question number
+                while (questions[random_q_num].isUsed()) {
+                    random_q_num =  random.nextInt(max);
+                }
+                return random_q_num;
+            }
         }
-        return random_q_num;
-    }
+        return (max+1); // Return unimportant placeholder value which will be replaced
+    } // END randomiseNumber
 
+    // START quizGame
     public static void quizGame(Player[] players, Question[] quiz_questions, Scanner scanner, int MAX_NUMBER_OF_QUESTIONS) {
-        String current_input = "";
-        int winner = 0;
+        System.out.printf("You are playing the %s category! Good luck everyone!\n", quiz_questions[0].getCategory());
+
+        String current_input;
+        int num_answered = 0;
         int current_question_number = randomiseNumber(MAX_NUMBER_OF_QUESTIONS, quiz_questions);
 
         for (Player player : players) {
-            // Nested for loop to reset the list of questions to be reused for the next player
-            for (Question question : quiz_questions) {
-                question.resetQuestions(question);
-            }
-
-            current_input = ""; // Must be updated to run the while loop (do -> while loops are forbade from being used as per style guide)
-            // Increment current_question_number inside the while loop
-            while (!current_input.equals(quiz_questions[current_question_number].getAnswer()) && !current_input.equals("pass") && !quiz_questions[current_question_number].isUsed()) {
+            System.out.printf("Current PLAYER number: %d\n", player.getNumber()); // Let each player know when their turn is
+            while (num_answered <= 5 && current_question_number != 6) {
                 System.out.println(quiz_questions[current_question_number].getQuestionText());
-
-                current_input = scanner.nextLine();
+                current_input = scanner.nextLine().toLowerCase(); // Removes case-sensitivity
 
                 // If the player wants to pass, halve their money and go to the next question
-                if (current_input.equals("pass")) {
+                if (isQuestionCorrect(current_input, "pass")) {
+                    num_answered++; // Increment
                     player.loseMoney();
+                    System.out.printf("Question passed! Player %d now has £%d.\n", player.getNumber(), player.getMoney());
+                    quiz_questions[current_question_number].setUsed(true);
                     current_question_number = randomiseNumber(MAX_NUMBER_OF_QUESTIONS, quiz_questions); // Go to the next question
                 }
-
-                else if (current_input.equals(quiz_questions[current_question_number].getAnswer())) {
-                    player.setMoney(player.getMoney() * 2);
-                    System.out.println(player.getMoney() + " money left for player number " + player.getNumber());
+                else if (isQuestionCorrect(current_input, quiz_questions[current_question_number].getAnswer())) {
+                    num_answered++; // Increment
+                    player.winMoney();
+                    System.out.printf("Correct! Player number %d now has £%d. \n", player.getNumber(), player.getMoney());
+                    quiz_questions[current_question_number].setUsed(true);
                     current_question_number = randomiseNumber(MAX_NUMBER_OF_QUESTIONS, quiz_questions);
                 }
-
                 // If the answer is incorrect, halve the player's money
                 else {
-                    System.out.println("Incorrect!");
                     player.loseMoney();
-
+                    System.out.printf("Incorrect! Player %d now has £%d.\n", player.getNumber(), player.getMoney());
                 }
             }
+            // Nested for loop to reset the list of questions to be reused for the next player
+            for (Question question : quiz_questions) {
+                question.setUsed(false);
+            }
+            // Reset parameters for the while loop
+            num_answered = 0;
+            // (Will not return 6 because all questions are reset to false)
+            current_question_number = randomiseNumber(MAX_NUMBER_OF_QUESTIONS, quiz_questions);
+        }
+        // Print game results at the end
+        for (Player player : players) {
+            System.out.printf("Player %d has finished with £%d. \n", player.getNumber(), player.getMoney());
         }
 
-        for (Player player : players) {
-            System.out.printf("Player %d has finished with: £%d\n", player.getNumber(), player.getMoney());
-        }
-    }
+    } // END quizGame
+
 }
