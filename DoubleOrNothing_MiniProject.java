@@ -40,34 +40,18 @@ public class DoubleOrNothing_MiniProject {
         final int MAX_NUMBER_OF_PLAYERS = 4;
         final int MAX_NUMBER_OF_QUESTIONS = 5;
         final int STARTING_WINNINGS = 500;
-        final String FILE_PATH = "/Users/andy/Desktop/Coding/Java files/MINI PROJECT/Categories/"; // Change for local dependency
-
-        // Initialise variables before starting the game
-        Question[] quiz_game_questions = null;
-        Player[] quiz_game_players = createPlayers(MAX_NUMBER_OF_PLAYERS, STARTING_WINNINGS);
-        String current_input;
-        int category_menu = 0;
-        int num_answered = 0;
+        final String FILE_PATH = String.format("%s/Categories", System.getProperty("user.dir")); // Change for local dependency
 
         // Call the method which prints the rules of the game
         gameRules();
 
-        // START
-        // Picking the category of the quiz or making questions
-        while (category_menu != 1) {
-            System.out.println("To pick a category or make a new one:\n1) Choose categories \n2) New \nEnter: ");
-            category_menu = Integer.parseInt(scanner.nextLine());
-            if (category_menu == 1) {
-                quiz_game_questions = gatherQuestions(showCategories(FILE_PATH, scanner), MAX_NUMBER_OF_QUESTIONS, FILE_PATH);
-            } else if (category_menu == 2) {
-                createNewQuestions(MAX_NUMBER_OF_QUESTIONS, scanner, FILE_PATH);
-                System.out.println("Your category will now be shown in game!");
-            } else {
-                System.out.println("\nEnter a valid option 1 or 2.\n");
-            }
-        }
-        // END
+        // Initialise variables before starting the game
+        Question[] quiz_game_questions = chooseOrCreateCategories(scanner, MAX_NUMBER_OF_QUESTIONS, FILE_PATH);
+        Player[] quiz_game_players = createPlayers(MAX_NUMBER_OF_PLAYERS, STARTING_WINNINGS);
+        String current_input; // Answer input for the main logic of the game
+        int num_answered = 0; // Number of questions answered - resets to 0 once it hits 5
 
+        // Picking the category of the quiz or making questions
         System.out.printf("You are playing the %s category! Good luck everyone!\n", getCategory(quiz_game_questions[0]).toUpperCase());
         int current_question_number = randomiseNumber(MAX_NUMBER_OF_QUESTIONS, quiz_game_questions);
 
@@ -110,10 +94,37 @@ public class DoubleOrNothing_MiniProject {
             current_question_number = randomiseNumber(MAX_NUMBER_OF_QUESTIONS, quiz_game_questions);
         }
         // Print game results at the end
+        System.out.println("\nFinished!\n");
         for (Player player : quiz_game_players) {
             System.out.printf("Player %d has finished with £%d. \n", getNumber(player), getMoney(player));
         }
     } // END main
+
+    // START chooseOrCreateCategories
+    public static Question[] chooseOrCreateCategories(Scanner scanner, int maxQuestions, String filePath) throws IOException {
+        int categoryMenu;
+
+        // Ask BEFORE the loop (style guide pattern)
+        System.out.println("To pick a category or make a new one:");
+        System.out.println("1) Choose categories");
+        System.out.println("2) New");
+        System.out.print("Enter: ");
+        categoryMenu = Integer.parseInt(scanner.nextLine());
+
+        // Loop ONLY for validation
+        while (categoryMenu != 1 && categoryMenu != 2) {
+            System.out.println("Please enter 1 or 2.");
+            System.out.print("Enter: ");
+            categoryMenu = Integer.parseInt(scanner.nextLine());
+        }
+
+        // Handle valid choice AFTER loop
+        if (categoryMenu != 1) {
+            createNewQuestions(maxQuestions, scanner, filePath);
+            System.out.println("Your category will now be shown in game!");
+        }
+        return gatherQuestions(showCategories(filePath, scanner), maxQuestions, filePath);
+    } // END chooseOrCreateCategories
 
 
     // START gameRules
@@ -177,7 +188,6 @@ public class DoubleOrNothing_MiniProject {
 
 
     // START createPlayerAttributes
-    // Initialises each player
     public static Player createPlayerAttributes(int playerNum, int maxMoney) {
         Player player = new Player();
         player.number = playerNum; // Set the number of the player to allocate each one their own money
@@ -297,4 +307,4 @@ public class DoubleOrNothing_MiniProject {
     public static void winMoney(Player player) {setMoney((player.money * 2), player);}
     public static void loseMoney(Player player) {setMoney((player.money/ 2), player);}
 
-}
+} // END DoubleOrNothing_MiniProject
